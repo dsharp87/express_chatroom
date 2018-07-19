@@ -1,0 +1,58 @@
+<title></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type ="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type ="text/javascript">
+         $(document). ready(function (){
+            // this triggers the connection event in our server!
+            var socket  = io.connect();
+            // we'll write all the socket stuff after the above line!
+            
+            usernameprompt();
+            
+            $('button').click(function (){
+                var message = $("#message").val();
+                if (message) {
+                    socket.emit( "send_click", {message:  "because I want to learn about sockets!"});
+                }
+            });
+            
+            socket.on( 'server_response', function (data){
+                console.log( 'The server says: '  + data.response);
+            });
+
+            socket.on("user_joined_broadcast", (data)=> {
+                console.log("a user joined the channel", data.username);
+                $("#user_list").append(`<li>${data.username}</li>`);
+            })
+
+            function usernameprompt() {
+                var username = prompt("Please enter your username");
+                if (username != null) {
+                    $("#user_list").append(`<li>${username}</li>`);
+                    socket.emit("user_joined", { username: username });
+                }
+            }
+        })
+    </script>
+</head>
+<body>
+
+<div>
+    <h1>User list goes here</h1>
+    <ul id = "user_list">
+
+    </ul>
+</div>
+
+<div id = "chatbox">
+    <h1>Chatbox goes here</h1>
+</div>
+
+<form>
+    <lable>Message</lable><input type='text' name='message'><br>
+    <button type = "button">Send</button>
+</form>
+
+</body>
+</html>
